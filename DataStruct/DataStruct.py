@@ -11,13 +11,10 @@ with open('populations.csv', 'r') as myself:
         words = word.split(",")
         Dict[words[0]] = words[1]
         count += 1
-        #print("Counter for pops.csv: ", count)
-with open('queries.txt', 'r') as mapping:
-    for store in mapping:
-        print(store)
-        # for k, v in Dict.items():
-        #     print(store, k)
-        #     if store == k:
-        #         print(k, ":", v)
+print("Reading in queries.txt...")
+lines = [line.rstrip('\n') for line in open('queries.txt')]
+for x in lines:
+    if x in Dict.keys():
+        print(x, ":", Dict[x])
 end = time.time()
 print("Execution time in seconds to read and map values: ", end - start)
