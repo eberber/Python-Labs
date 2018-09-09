@@ -9,6 +9,8 @@ count = 0
 l1 = []
 l2 = []
 l3 = []
+hun1 = 0.0
+hun2 = 0.0
 with open('populations.csv', 'r') as myself:
     for word in myself:
         words = word.split(",")
@@ -21,10 +23,15 @@ print("Reading in queries.txt...")
 lines = [line.rstrip('\n') for line in open('queries.txt')]
 print(type(lines))
 print("Starting timer")
+z = 0
 start = time.time()
 for x in lines:
     if x in Dict.keys():
         print(x, ":", Dict[x])
+    if z == 100:
+        grab = time.time()
+        hun1 = grab - start
+    z += 1
 end = time.time()
 final = end - start
 print("Execution time in seconds to read and map values: ", final)
@@ -41,11 +48,14 @@ while q < len(lines):
         if same == l1[y]:
             print(same, ":", l3[y])
         y += 1
+    if q == 100:
+        grab = time.time()
+        hun2 = grab - start
     y = 0
     q += 1
 end = time.time()
 print("First data struct in seconds: ", final, "Second data struct in seconds: ", end - start)
-
+print("If only 100 values read, data struct 1: ", hun1, "data struct 2: ", hun2)
 
 
 
