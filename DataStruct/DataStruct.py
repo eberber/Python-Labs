@@ -37,7 +37,7 @@ final = end - start
 print("Execution time in seconds to read and map values: ", final)
 
 
-print("Starting second data structure: stack")
+print("Starting second data structure: list")
 q = 0
 y = 0
 print("Starting timer")
