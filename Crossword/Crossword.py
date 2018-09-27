@@ -1,40 +1,63 @@
 import numpy
-#def findChild(x,y,boolean):
-def find_star_one(board):
+
+#GLOBAL
+node_id = 0
+
+def traverse(board):
+    dicHorz = {}
+    dicVert = {}
+    arrHorz = []
+    arrVert = []
     payload = []
-    isHorz = False
-    word = 'word'
+    length = 0
+    checkpoint = 0
+    global node_id
+
+ #horizontal word
     for i in range(len(board)):
         for j in range(len(board[i])):
+            start = 0 #reset the start place
             if board[i][j] == '*':
-                if((j + 1) < len(board[i]) and board[i][j+1] == '*'): #not out of bounds
-                    payload.append(i)
-                    payload.append(j)
-                    payload.append(True)
-                    return payload
+                length += 1
+            elif board[i][j] == '.':
+                if length > 1:
+                    node_id += 1
+                    start = j - length
+                    end = j -1
+                    dicHorz['xCord'] = i
+                    dicHorz['yCordStart'] = start
+                    dicHorz['yCordEnd'] = end
+                    dicHorz['ID'] = node_id
+                    arrHorz.append(dicHorz.copy()) #copy data into array
+                length = 0
 
-def traverse(x, y , bool, board):
-    arr = []
-    start = 0
-    if bool == True: #horizontal word
-        for i in range(x,len(board)):
-            for j in range(y, len(board[i])):
-                if board[i - 1][j] > x and board[i][j] == '*':
-                    k = i
-                    while k > x : #traverse up within range
-                        k = k - 1
-
-    #else:
-        # for i in range(x,len(board)):
-        #     for j in range(y, len(board[i])):
+#vertical word
+    for j in range(len(board[0])):
+        for i in range(len(board)):
+            start = 0 #reset the start place
+            if board[i][j] == '*':
+                length += 1
+            elif board[i][j] == '.':
+                if length > 1:
+                    node_id += 1
+                    start = i - length
+                    end = i -1
+                    dicVert['yCord'] = j
+                    dicVert['xCordStart'] = start
+                    dicVert['xCordEnd'] = end
+                    dicVert['ID'] = node_id
+                    arrVert.append(dicVert.copy()) #copy data into array
+                length = 0
+    return [arrHorz, arrVert];
 
 
 #MAIN
-name = input("Enter txt file name only:  ")
-try:
-    file = open(name + '.txt')
-except:
-    print("Not a valid file")
+# name = input("Enter txt file name only:  ")
+# try:
+#     file = open(name + '.txt')
+# except:
+#     print("Not a valid file")
+file = open('puzzle1.txt')
 data = file.readlines()
 col = 0
 temp = 0
@@ -48,8 +71,11 @@ board = data[0:col]
 data = data[col:]
 for i in range(len(board)):
     print(board[i])
-star_one = find_star_one(board)
-print(star_one)
-traverse(star_one[0], star_one[1],star_one[2], board)
-
-
+val1, val2 = traverse(board)
+indexval = 0
+# for x in hold:
+#     print(x)
+for s in val1:
+    print(s)
+for s in val2:
+    print(s)
