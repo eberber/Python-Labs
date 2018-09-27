@@ -3,6 +3,23 @@ import numpy
 #GLOBAL
 node_id = 0
 
+def collision(arr, arr2):
+    flag = False
+    match = []
+    relation = {}
+    print("type: " , type(arr))
+    for vert in arr2:
+        for horz in arr:#x in range of vert and y in range of horz
+            if horz['xCord'] in range(vert['xCordStart'], vert['xCordEnd']) and vert['yCord'] in range(horz['yCordStart'], horz['yCordEnd']):
+                match.append({horz['ID']:vert['ID']}) #collision between these two found
+
+            if horz['xCord'] < vert['yCord']: #choose a parent
+                relation.update({'Parent':horz['ID']})
+            else:
+                relation.update({'Parent':vert['ID']})
+
+    return match
+
 def traverse(board):
     dicHorz = {}
     dicVert = {}
@@ -50,7 +67,6 @@ def traverse(board):
                 length = 0
     return [arrHorz, arrVert];
 
-
 #MAIN
 # name = input("Enter txt file name only:  ")
 # try:
@@ -79,3 +95,6 @@ for s in val1:
     print(s)
 for s in val2:
     print(s)
+pairs = collision(val1,val2)
+for x in pairs:
+     print(x)
