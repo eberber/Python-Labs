@@ -1,25 +1,88 @@
-import numpy
-
+import sys
+sys.setrecursionlimit(10000)
 #GLOBAL
 node_id = 0
+def horzBoard(slotx, board, word):
+    for i in range(len(board)):
+        for j in range(len(board[i])):
+            if i == slot['xCord'] and j == slot['yCordStart']:
+                x = 0
+                while j < slot['yCordEnd']:
+                    board[i][j] = word[x]
+                    x += 1
+                    j += 1
+                break
+    for i in range(len(board)):
+        print(board[i])
+    return board
 
-#def solve(horz , vert, words , collision, answer):
-def permutations(slot, together, words, family):
-    if len(slot) == 0:
-        return []
-    #If there is only one element in lst then, only
+
+def vertBoard(sloty, board, word):
+    for j in range(len(board[0])):
+        for i in range(len(board)):
+            if j == slot['yCord'] and i == slot['xCordStart']:
+                x = 0
+                while i < slot['xCordEnd']:
+                    board[i][j] = word[x]
+                    x += 1
+                    i += 1
+                break
+    for i in range(len(board)):
+        print(board[i])
+    return board
+
+def solve(slot, relation, words, family, board):
     #one permuatation is possible
-    if len(slot) == 1:
-        for x in words:
-                if len(x) == slot[0]['Length']: # if word fits
-                    flag = True
-                    for z in family:
-                            if together[0]['C'] == y['ID']:
-                                temp = together['PC']
-                                temp2 = together['CC']
-                                if temp == temp2:
-                                    flag = False
-                                    break
+    #if first word fits, collision pts match move on
+    for f in range(len(relation)):
+        for s in range(len(slot)):
+            if f['P'] == slot[s]['ID']:
+                for w in range(len(words)):
+                    if len(words[w]) == s['Length']:
+                        #now does child fit?
+                        for sl in range(len(slot)):
+                            if f['C'] == slot[sl]['ID']:
+                                for wl in range(len(words)):
+                                    if len(words[wl]) == sl['Length']:
+                                        #check offset
+                                        if words[w][f['PC']] == words[wl][f['CC']]:
+                                            #add word to board, first parent
+                                            if 'xCord' in slot[s]:
+                                                return horzBoard(slot[s], board, words[w])
+                                            elif 'yCord' in slot[s]:
+                                                return vertBoard(slot[s], board, words[w])
+                                            #add child
+                                            if 'xCord' in slot[sl]:
+                                                return horzBoard(slot[sl], board, words[wl])
+                                            elif 'yCord' in slot[sl]:
+                                                return vertBoard(slot[sl], board, words[wl])
+                                        else: return #check another loop
+
+
+
+
+def permutations(slot, relation, words, family):
+    prev_word = ''
+    if len(words) == 0:
+        return []
+    if len(words) == 1:
+        return [words]
+    l = []  # empty list that will store current permutation
+
+    # Iterate the input(lst) and calculate the permutation
+    for i in range(len(words)):
+        m = words[i]
+
+        # Extract lst[i] or m from the list.  remLst is
+        # remaining list
+        remLst = words[:i] + words[i + 1:]
+
+        # Generating all permutations where m is first
+        # element
+        for p in permutations(slot, relation, remLst, family):
+            l.append([m] + p)
+    return l
+
 
 def collision(arr, arr2):
     flag = False
@@ -56,8 +119,8 @@ def collision(arr, arr2):
                     parent.update({'PC': hPoint})
                     child.update({'C': vert['ID']})
                     child.update({'CC': vPoint})
+                    parent.update(child.copy())
                     family.append(parent.copy())
-                    family.append(child.copy())
                     relList.append(relation.copy())
                     graph[relation['Parent']][relation['Child']] = True
                 elif horz['xCord'] >= vert['yCord']:
@@ -67,8 +130,8 @@ def collision(arr, arr2):
                     parent.update({'PC': vPoint})
                     child.update({'C': horz['ID']})
                     child.update({'CC': hPoint})
+                    parent.update(child.copy())
                     family.append(parent.copy())
-                    family.append(child.copy())
                     relList.append(relation.copy())
                     graph[relation['Parent']][relation['Child']] = True
 
@@ -143,6 +206,8 @@ board = data[0:col]
 data = data[col:] #words
 for i in range(len(board)):
     print(board[i])
+for d in range(len(data)):
+    print(data[d], 'Len: ', len(data[d]))
 val1, val2 = traverse(board)
 for s in val1:
     print(s)
@@ -154,12 +219,20 @@ print(type(slot))
 for x in pairs:
      print('Collision ID pairs: ', x)
 for y in slot:
-    print("Offset point: ",y)
+    print("Offset point: ", y)
+print('Relation')
 for z in family:
     print(z)
-print(graph)
+print('Together')
 for i in together:
     print(i)
-permutations(slot, together, data, family)
+#call to perms is a loop
+x = 0
+for p in permutations(slot, together, data, family):
+    print(p)
+    print('\n DONE  \n', x )
+    solve(slot, together, p, family, board)
+    x += 1
+
 #solve(val1 , val2, data , colRelation, None)
 
