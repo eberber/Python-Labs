@@ -3,6 +3,7 @@ import time
 sys.setrecursionlimit(10000)
 #GLOBAL
 node_id = 0
+steps = 0
 
 def horzBoard(slotx, board, word):
     for i in range(len(board)):
@@ -63,6 +64,7 @@ def solve(slot, relation, words, family, board):
 
 def permutations(slot, relation, words, family):
     prev_word = ''
+    global steps
     if len(words) == 0:
         return []
     if len(words) == 1:
@@ -77,6 +79,7 @@ def permutations(slot, relation, words, family):
         # Generating all permutations where m is first
         # element
         for p in permutations(slot, relation, remLst, family):
+            steps += 1
             l.append([m] + p)
     return l
 
@@ -218,6 +221,7 @@ x = 0
 #put all slots together
 for v in val2:
     val1.append(v)
+print(together)
 start = time.time()
 answer = None
 for p in permutations(val1, together, data, family):
@@ -226,7 +230,7 @@ for p in permutations(val1, together, data, family):
         break
     x += 1
 print('\n')
-print('Answer' , answer, '\n')
 fillBoard(val1, board, answer)
 end = time.time()
 print('Time: ', end - start)
+print('Step: ', steps)
