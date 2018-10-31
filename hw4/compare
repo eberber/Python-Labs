@@ -1,0 +1,73 @@
+import heapq
+import math
+import random
+import time
+from heapq import heappush, heappop
+
+def binarySearch (arr, l, r, x):
+    # Check base case
+    if r >= l:
+
+        mid = l + (r - l)/2
+        mid = math.floor(mid)
+
+        # If element is present at the middle itself
+        if arr[mid] == x:
+            return mid
+
+            # If element is smaller than mid, then it
+        # can only be present in left subarray
+        elif arr[mid] > x:
+            return binarySearch(arr, l, mid-1, x)
+
+            # Else the element can only be present
+        # in right subarray
+        else:
+            return binarySearch(arr, mid+1, r, x)
+
+    else:
+        # Element is not present in the array
+        return -1
+
+def search(arr, x):
+    for i in range(len(arr)):
+
+        if arr[i] == x:
+            return i
+
+    return -1
+
+
+# Test array
+arr = []
+#init random array
+for i in range(10000):
+    arr.append(random.randint(0,1000000))
+heap = []
+
+start = time.time()
+for item in arr:
+    heappush(heap, item)
+
+ordered = []
+while heap:
+    ordered.append(heappop(heap))
+
+# Function call
+for n in range(2000):
+    temp = random.randint(0,9999)
+    x = arr[temp]
+    result = binarySearch(ordered, 0, len(arr)-1, x)
+end = time.time()
+final = end - start
+print("Time for binary search: ", final)
+
+
+start = time.time()
+for n in range(2000):
+    temp = random.randint(0,10000)
+    x = arr[temp]
+    result = search(arr, x)
+end = time.time()
+final = end - start
+print("Time for linear search: ", final)
