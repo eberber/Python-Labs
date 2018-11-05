@@ -29,10 +29,11 @@ def match(my_word, data):
     return payload, num_matches
 
 
-with open('small.txt') as file:
-    data = file.read()
+with open('code.cpp') as file:
+    data = file.read().lower()
 data = re.findall(r"[\S]",data)
 phrase = input("Enter a phrase to search for: ")
+phrase = phrase.lower()
 print("Word is : ", phrase, "\n length: ", len(phrase))
 payload, num_matches = match(phrase, data)
 for i in payload:
