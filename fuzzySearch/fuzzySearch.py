@@ -66,14 +66,18 @@ def search(my_word, data):
         string1 += data[i]
         if is_length == len(my_word):
             score = levenshtein(string1, my_word)
-            if score <= 1: # within 1 letter deviation
+            if score <= 1:# within 1 letter deviation
                 num_matches += 1
                 payload.append(string1)
-            elif score == 2: # may be a swap?
+            elif score == 2:# may be a swap?
                 for x in range(len(my_word)):
-                    if my_word[x] not in dict.keys() :
+                    if my_word[x] not in dict.keys():
+                        dict[my_word[x]] = 1
+                    else:
                         dict[my_word[x]] += 1
                     if string1[x] not in dict.keys():
+                        dict[string1[x]] = 1
+                    else:
                         dict[string1[x]] += 1
                 for key, value in dict.items():
                     if value > 1:
