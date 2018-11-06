@@ -1,4 +1,58 @@
 import re
+import numpy as np
+
+def levenshtein(seq1, seq2):
+    size_x = len(seq1) + 1
+    size_y = len(seq2) + 1
+    matrix = np.zeros ((size_x, size_y))
+    for x in range(size_x):
+        matrix [x, 0] = x
+    for y in range(size_y):
+        matrix [0, y] = y
+
+    for x in range(1, size_x):
+        for y in range(1, size_y):
+            if seq1[x-1] == seq2[y-1]:
+                matrix [x,y] = min(
+                    matrix[x-1, y] + 1,
+                    matrix[x-1, y-1],
+                    matrix[x, y-1] + 1
+                )
+            else:
+                matrix [x,y] = min(
+                    matrix[x-1,y] + 1,
+                    matrix[x-1,y-1] + 1,
+                    matrix[x,y-1] + 1
+                )
+    #print (matrix)
+    return (matrix[size_x - 1, size_y - 1])
+
+def search(my_word, data):
+    string1 = ""
+    payload = []
+    dict = {}
+    counter = 0
+    for i in range(len(data)):
+        string1 += data[i]
+        if (i - len(my_word)) >= 0:
+            start = i - len(my_word)
+            score = levenshtein(string1, my_word)
+            if score <= 1: # within 1 letter deviation
+                payload.append(string1)
+            elif score == 2: # may be a swap?
+                for x in range(len(my_word)):
+                    if my_word[x] not in dict.keys() :
+                        dict[my_word[x]] += 1
+                    if string1[x] not in dict.keys():
+                        dict[string1[x]] += 1
+                for key, value in dict.items():
+                    if value > 1:
+                        dict = {} #no swap
+                        break
+                    elif counter == len(dict):
+                        payload.append(string1)
+                    counter += 1
+
 
 def match(my_word, data):
     flag = 0
@@ -29,15 +83,17 @@ def match(my_word, data):
 
 with open('shakespeare.txt') as file:
     data = file.read().lower()
-data = re.findall(r"[\S]",data)
 phrase = input("Enter a phrase to search for: \n")
 phrase = phrase.lower()
 print("\n Word is : ", phrase, "\n length: \n", len(phrase))
-payload, num_matches = match(phrase, data)
-for i in payload:
-    if i == phrase:
-        print(i)
-        print("Exact match")
-        exit(0)
-print("result \n",payload)
-print('Matches',num_matches)
+# payload, num_matches = match(phrase, data)
+# for i in payload:
+#     if i == phrase:
+#         print(i)
+#         print("Exact match")
+#         exit(0)
+# print("result \n",payload)
+# print('Matches',num_matches)
+str = "board"
+distance = levenshtein(phrase, str)
+print(distance)
