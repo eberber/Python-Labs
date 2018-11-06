@@ -8,9 +8,7 @@ def match(my_word, data):
     num_matches = 0
     #if a single letter does not match, thats one. on a second dont append
     for i in range(len(data)):
-        print(data[i])
         if i >= len(my_word): #make sure word is of same length to compare
-            print("XXXXXXXXX")
             for j in range(len(my_word)):
                 string1 += data[(i - len(my_word))+j]
                 if my_word[j] != data[(i-len(my_word)) + j]:
@@ -29,17 +27,17 @@ def match(my_word, data):
     return payload, num_matches
 
 
-with open('code.cpp') as file:
+with open('shakespeare.txt') as file:
     data = file.read().lower()
 data = re.findall(r"[\S]",data)
-phrase = input("Enter a phrase to search for: ")
+phrase = input("Enter a phrase to search for: \n")
 phrase = phrase.lower()
-print("Word is : ", phrase, "\n length: ", len(phrase))
+print("Word is : ", phrase, "\n length: \n", len(phrase))
 payload, num_matches = match(phrase, data)
 for i in payload:
     if i == phrase:
         print(i)
         print("Exact match")
         exit(0)
-print("result",payload)
+print("result \n",payload)
 print('Matches',num_matches)
