@@ -32,7 +32,7 @@ with open('shakespeare.txt') as file:
 data = re.findall(r"[\S]",data)
 phrase = input("Enter a phrase to search for: \n")
 phrase = phrase.lower()
-print("Word is : ", phrase, "\n length: \n", len(phrase))
+print("\n Word is : ", phrase, "\n length: \n", len(phrase))
 payload, num_matches = match(phrase, data)
 for i in payload:
     if i == phrase:
