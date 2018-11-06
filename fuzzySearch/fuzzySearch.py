@@ -1,6 +1,32 @@
 import re
 import numpy as np
 
+def match(my_word, data):
+    flag = 0
+    payload = []
+    string1 = ""
+    counter = 0
+    num_matches = 0
+    #if a single letter does not match, thats one. on a second dont append
+    for i in range(len(data)):
+        if i >= len(my_word): #make sure word is of same length to compare
+            for j in range(len(my_word)):
+                string1 += data[(i - len(my_word))+j]
+                if my_word[j] != data[(i-len(my_word)) + j]:
+                    flag +=1
+                    if flag == 2:
+                        break
+            if flag != 2:
+                num_matches+=1
+                payload.append(string1)
+                if string1 == my_word:
+                    break
+            string1 = ""
+            flag = 0
+            counter = 0
+        counter +=1
+    return payload, num_matches
+
 def levenshtein(seq1, seq2):
     size_x = len(seq1) + 1
     size_y = len(seq2) + 1
@@ -29,15 +55,19 @@ def levenshtein(seq1, seq2):
 
 def search(my_word, data):
     string1 = ""
+    shift = ""
     payload = []
     dict = {}
     counter = 0
+    num_matches = 0
+    is_length = 0
+    
     for i in range(len(data)):
         string1 += data[i]
-        if (i - len(my_word)) >= 0:
-            start = i - len(my_word)
+        if is_length == len(my_word):
             score = levenshtein(string1, my_word)
             if score <= 1: # within 1 letter deviation
+                num_matches += 1
                 payload.append(string1)
             elif score == 2: # may be a swap?
                 for x in range(len(my_word)):
@@ -50,38 +80,17 @@ def search(my_word, data):
                         dict = {} #no swap
                         break
                     elif counter == len(dict):
+                        num_matches += 1
                         payload.append(string1)
                     counter += 1
-
-
-def match(my_word, data):
-    flag = 0
-    payload = []
-    string1 = ""
-    counter = 0
-    num_matches = 0
-    #if a single letter does not match, thats one. on a second dont append
-    for i in range(len(data)):
-        if i >= len(my_word): #make sure word is of same length to compare
-            for j in range(len(my_word)):
-                string1 += data[(i - len(my_word))+j]
-                if my_word[j] != data[(i-len(my_word)) + j]:
-                    flag +=1
-                    if flag == 2:
-                        break
-            if flag != 2:
-                num_matches+=1
-                payload.append(string1)
-                if string1 == my_word:
-                    break
             string1 = ""
-            flag = 0
             counter = 0
-        counter +=1
+            is_length = 0
+        is_length +=1
     return payload, num_matches
 
 
-with open('shakespeare.txt') as file:
+with open('small.txt') as file:
     data = file.read().lower()
 phrase = input("Enter a phrase to search for: \n")
 phrase = phrase.lower()
@@ -94,6 +103,6 @@ print("\n Word is : ", phrase, "\n length: \n", len(phrase))
 #         exit(0)
 # print("result \n",payload)
 # print('Matches',num_matches)
-str = "board"
-distance = levenshtein(phrase, str)
-print(distance)
+payload, num_matches = search(phrase, data)
+print(payload)
+print(num_matches)
