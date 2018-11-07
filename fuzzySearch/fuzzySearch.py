@@ -60,53 +60,52 @@ def search(my_word, data):
     dict = {}
     counter = 0
     num_matches = 0
-    is_length = 0
+    is_length = len(my_word) + 1
     
     for i in range(len(data)):
         string1 += data[i]
-        if is_length == len(my_word):
-            score = levenshtein(string1, my_word)
-            if score <= 1:# within 1 letter deviation
-                num_matches += 1
-                payload.append(string1)
-            elif score == 2:# may be a swap?
-                for x in range(len(my_word)):
-                    if my_word[x] not in dict.keys():
-                        dict[my_word[x]] = 1
-                    else:
-                        dict[my_word[x]] += 1
-                    if string1[x] not in dict.keys():
-                        dict[string1[x]] = 1
-                    else:
-                        dict[string1[x]] += 1
-                for key, value in dict.items():
-                    if value > 1:
-                        dict = {} #no swap
-                        break
-                    elif counter == len(dict):
-                        num_matches += 1
-                        payload.append(string1)
-                    counter += 1
+        if i + len(my_word) < len(data):
+            for j in range(i + 1, i + is_length):
+                string1 += data[j]
+                score = levenshtein(string1, my_word)
+                #print(string1, "    ", my_word, "\n  XXXXXX \n")
+                if score <= 1:# within 1 letter deviation
+                    num_matches += 1
+                    payload.append(string1)
+                elif score == 2:# may be a swap?
+                    for x in range(len(string1)):
+                        if my_word[x] not in dict.keys():
+                            dict[my_word[x]] = 1
+                        else:
+                            dict[my_word[x]] += 1
+                        if string1[x] not in dict.keys():
+                            dict[string1[x]] = 1
+                        else:
+                            dict[string1[x]] += 1
+                    for key, value in dict.items():
+                        if value > 2:
+                            dict = {} #no swap
+                            break
+                        elif counter == len(dict):
+                            num_matches += 1
+                            payload.append(string1)
+                        counter += 1
+                counter = 0
             string1 = ""
-            counter = 0
-            is_length = 0
-        is_length +=1
     return payload, num_matches
 
 
-with open('small.txt') as file:
+with open('code.cpp') as file:
     data = file.read().lower()
+print(len(data))
 phrase = input("Enter a phrase to search for: \n")
 phrase = phrase.lower()
 print("\n Word is : ", phrase, "\n length: \n", len(phrase))
-# payload, num_matches = match(phrase, data)
-# for i in payload:
-#     if i == phrase:
-#         print(i)
-#         print("Exact match")
-#         exit(0)
-# print("result \n",payload)
-# print('Matches',num_matches)
 payload, num_matches = search(phrase, data)
-print(payload)
-print(num_matches)
+for i in payload:
+    if i == phrase:
+        print(i)
+        print("Exact match")
+        exit(0)
+print("result \n", payload)
+print('Matches', num_matches)
