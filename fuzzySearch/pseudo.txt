@@ -1,0 +1,35 @@
+def levenshtein(seq1, seq2):
+	init 2D matrix of size len(seq1) and len(seq2) to 0
+	
+	run through matrix, if the chars match at that position -1 for row and col then set that pos to min of top+1
+	diagonal and left of pos +1
+	
+	else set pos to min of top+1
+	diagonal +1 and left of pos +1
+
+	return value at last index that tells us edit distance 
+
+def search(my_word, data):
+	for length of file read in:
+		string = current char at i in file
+		if length of the my_word, + 1 is < len of file
+			for j length of my word+1 starting at pos i +1 check 
+				fill in rest of string for j
+				only continue if you the size of the string is +1 | -1 | equal to len of my_word
+				compute levenshtein distance
+				if that distance is < 1 it fits the requirements for a fuzzy
+				else if its 2 it could be a swap
+					if the same number of chars appear in both words a maximum of 2 times for every
+					new char, it is a swap otherwise its not continue
+	return the words found, number of matches and index locations
+
+main:
+	read in the file
+	ask for user phrase to search
+	convert them both to lower case for easier searching
+	call search
+	for i length of words found
+		display the exact word found in words returned if any, time to compute and index
+		exit the program	
+	otherwise just display all results
+		
