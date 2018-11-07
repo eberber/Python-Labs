@@ -73,8 +73,8 @@ def search(my_word, data):
                 counter = 0
             string1 = ""
     return payload, num_matches, index_location, operations
-
-with open('shakespeare.txt') as file:
+file = input("Enter file name: ")
+with open(file) as file:
     data = file.read().lower()
 print(len(data))
 phrase = input("Enter a phrase to search for: \n")
@@ -85,7 +85,7 @@ payload, num_matches, index_location, operations = search(phrase, data)
 final = time.time()
 for i in range(len(payload)):
     if payload[i] == phrase:
-        print("Result". payload[i])
+        print("Result", payload[i])
         print("Exact match at index: ", index_location[i])
         print("Time: ", final - start)
         print("Operations: ", operations)

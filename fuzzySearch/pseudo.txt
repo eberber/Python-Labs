@@ -1,3 +1,5 @@
+#input = file and phrase to search for
+
 def levenshtein(seq1, seq2):
 	init 2D matrix of size len(seq1) and len(seq2) to 0
 	
