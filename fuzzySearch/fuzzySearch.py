@@ -1,19 +1,19 @@
 import time
 import numpy as np
 
-def levenshtein(seq1, seq2):
-    size_x = len(seq1) + 1
-    size_y = len(seq2) + 1
-    matrix = np.zeros ((size_x, size_y))
-    for x in range(size_x):
+def levenshtein(str1, str2):
+    lenX = len(str1) + 1
+    lenY = len(str2) + 1
+    matrix = np.zeros ((lenX, lenY))
+    for x in range(lenX):
         matrix [x, 0] = x
-    for y in range(size_y):
+    for y in range(lenY):
         matrix [0, y] = y
 
-    for x in range(1, size_x):
-        for y in range(1, size_y):
+    for x in range(1, lenX):
+        for y in range(1, lenY):
 
-            if seq1[x-1] == seq2[y-1]: #if chars match
+            if str1[x-1] == str2[y-1]: #if chars match
                 matrix [x,y] = min(
                     matrix[x-1, y] + 1, #top
                     matrix[x-1, y-1], #diagonal
@@ -26,7 +26,7 @@ def levenshtein(seq1, seq2):
                     matrix[x,y-1] + 1
                 )
 
-    return (matrix[size_x - 1, size_y - 1])
+    return (matrix[lenX - 1, lenY - 1])
 
 def search(my_word, data):
     string1 = ""
@@ -76,7 +76,7 @@ def search(my_word, data):
 file = input("Enter file name: ")
 with open(file) as file:
     data = file.read().lower()
-print(len(data))
+print("File length: ", len(data))
 phrase = input("Enter a phrase to search for: \n")
 phrase = phrase.lower()
 print("\nWord is : ", phrase, "\nLength: ", len(phrase))
@@ -85,14 +85,14 @@ payload, num_matches, index_location, operations = search(phrase, data)
 final = time.time()
 for i in range(len(payload)):
     if payload[i] == phrase:
-        print("Result", payload[i])
+        print("Result: ", payload[i])
         print("Exact match at index: ", index_location[i])
         print("Time: ", final - start)
         print("Operations: ", operations)
         exit(0)
 for i in range(len(payload)):
-    print("Result ", payload[i])
+    print("Result: ", payload[i])
     print("Match at index: ", index_location[i])
-print('Matches', num_matches)
+print('Matches: ', num_matches)
 print("Time: ", final - start)
 print("Operations: ", operations)
