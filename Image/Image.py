@@ -8,6 +8,9 @@ class Hman(object):
         self.left = left
         self.right = right
 
+    def __eq__(self, other):
+        return 0
+
     def __lt__(self, other):
         if type(self) == str:
             return self
@@ -18,7 +21,7 @@ class Hman(object):
 
 
 def create_freq_table():
-    img = Image.open("powercat.bmp")
+    img = Image.open("colors.bmp")
     #img.show()
     width, height = img.size
     px = img.load()
@@ -45,6 +48,7 @@ def create_freq_table():
         count_bits += 1
     count_bits = count_bits * 24
     print("Required bits for fixed length: ", count_bits)
+    compare = dict
     for i in dict.values():
         total += i
     temp = 0
@@ -53,30 +57,25 @@ def create_freq_table():
     for i, j in dict.items():
         dict[i] = j/total
         temp += dict[i]
-        tuple = (dict[i], str(i))
+        tuple = (dict[i], i)
         list.append(tuple)
-    for i in range(len(dict)):
-        for j in range(i+1, len(dict)):
-            if dict[i] == dict[j]:
-                print("EQUAL", dict[i], dict[j] )
-    print(list)
     print("TOTAL: ", total, "TEMP: ", temp)
-    return list
+    return list, compare
+
 
 def create_tree(frequencies):
     p = queue.PriorityQueue()
-    print(type(frequencies))
     for value in frequencies:    # 1. Create a leaf node for each symbol
         p.put(value)             #and add it to the priority queue
     while p.qsize() > 1:         # 2. While there is more than one node
         l, r = p.get(), p.get()  # 2a. remove two highest nodes
         node = Hman(l, r) # 2b. create internal node with children
         p.put((l[0]+r[0], node)) # 2c. add new node to queue
-        print('HERE', l,r)
+        #print('HERE', l,r)
     return p.get()               # 3. tree is complete - return root node
 
 
-freq = create_freq_table()
+freq, compare = create_freq_table()
 
 """freq = [
     (8.167, 'a'), (1.492, 'b'), (2.782, 'c'), (4.253, 'd'),
@@ -104,6 +103,33 @@ def walk_tree(node, prefix="", code={}):
     return code
 
 
+def compress(code):
+    img = Image.open("colors.bmp")
+    width, height = img.size
+    px = img.load()
+    bit_list = []
+    for x in range(width):
+        for y in range(height):
+            r, g, b = px[x, y]
+            if r in code.keys():
+                bit_list.append(code[r])
+            if g in code.keys():
+                bit_list.append(code[g])
+            if b in code.keys():
+                bit_list.append(code[b])
+    f = open("result.txt", "w+")
+    total_compress_bits = 0
+    for k in bit_list:
+        f.write("%s" % k)
+        total_compress_bits += len(k)
+    print("total_compress_bits: ", total_compress_bits)
+
+
 code = walk_tree(node)
-for i in sorted(freq, reverse=True):
-    print(i[1], '{:6.2f}'.format(i[0]), code[i[1]])
+compress(code)
+
+
+print("RGB          FREQUENCY        BIT MAP")
+print("_____________________________________")
+#for i in sorted(freq, reverse=True):
+ #   print(i[1], '   {:6.20f}'.format(i[0]), code[i[1]])
