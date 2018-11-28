@@ -47,7 +47,6 @@ def create_freq_table():
             dict[b] = 1
         count_bits += 1
     count_bits = count_bits * 24
-    print("Required bits for fixed length: ", count_bits)
     compare = dict
     for i in dict.values():
         total += i
@@ -59,8 +58,7 @@ def create_freq_table():
         temp += dict[i]
         tuple = (dict[i], i)
         list.append(tuple)
-    print("TOTAL: ", total, "TEMP: ", temp)
-    return list, compare
+    return list, compare, count_bits
 
 
 def create_tree(frequencies):
@@ -74,20 +72,6 @@ def create_tree(frequencies):
         #print('HERE', l,r)
     return p.get()               # 3. tree is complete - return root node
 
-
-freq, compare = create_freq_table()
-
-"""freq = [
-    (8.167, 'a'), (1.492, 'b'), (2.782, 'c'), (4.253, 'd'),
-    (12.702, 'e'),(2.228, 'f'), (2.015, 'g'), (6.094, 'h'),
-    (6.966, 'i'), (0.153, 'j'), (0.747, 'k'), (4.025, 'l'),
-    (2.406, 'm'), (6.749, 'n'), (7.507, 'o'), (1.929, 'p'),
-    (0.095, 'q'), (5.987, 'r'), (6.327, 's'), (9.056, 't'),
-    (2.758, 'u'), (1.037, 'v'), (2.365, 'w'), (0.150, 'x'),
-    (1.974, 'y'), (0.074, 'z')]"""
-
-
-node = create_tree(freq)
 
 # Recursively walk the tree down to the leaves,
 #   assigning a code value to each symbol
@@ -119,17 +103,43 @@ def compress(code):
                 bit_list.append(code[b])
     f = open("result.txt", "w+")
     total_compress_bits = 0
+
     for k in bit_list:
         f.write("%s" % k)
         total_compress_bits += len(k)
-    print("total_compress_bits: ", total_compress_bits)
+    return total_compress_bits
 
 
+def compression_ratio(compare, code):
+    avg_bits = 0.0
+    for i, j in compare.items():
+        if i in code.keys():
+           avg_bits += j * len(code[i])
+    return avg_bits
+
+
+freq, compare, count_bits = create_freq_table()
+
+"""freq = [
+    (8.167, 'a'), (1.492, 'b'), (2.782, 'c'), (4.253, 'd'),
+    (12.702, 'e'),(2.228, 'f'), (2.015, 'g'), (6.094, 'h'),
+    (6.966, 'i'), (0.153, 'j'), (0.747, 'k'), (4.025, 'l'),
+    (2.406, 'm'), (6.749, 'n'), (7.507, 'o'), (1.929, 'p'),
+    (0.095, 'q'), (5.987, 'r'), (6.327, 's'), (9.056, 't'),
+    (2.758, 'u'), (1.037, 'v'), (2.365, 'w'), (0.150, 'x'),
+    (1.974, 'y'), (0.074, 'z')]"""
+
+node = create_tree(freq)
 code = walk_tree(node)
-compress(code)
-
+total_compress_bits = compress(code)
+avg_bits = compression_ratio(compare, code)
 
 print("RGB          FREQUENCY        BIT MAP")
 print("_____________________________________")
 #for i in sorted(freq, reverse=True):
  #   print(i[1], '   {:6.20f}'.format(i[0]), code[i[1]])
+print("\nRequired bits for fixed length: ", count_bits)
+print("Required bits for Compression: ", total_compress_bits)
+avg_bits = (8-avg_bits)/8 * 100
+avg_bits = 100 - avg_bits
+print("Compression Ratio: ", round(avg_bits, 2), "%")
