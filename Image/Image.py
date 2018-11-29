@@ -1,7 +1,7 @@
 from PIL import Image
 import time
 import queue
-
+#AUTHOR: Edgar Berber
 compare_me = []
 class Hman(object):
     def __init__(self, left=None, right=None):
@@ -140,7 +140,7 @@ def decompress(file, code, file_name):
     for i in w:
         for j in h: #grab each pixel and replace it with the rgb values from our list
             px[i,j] = (list[count], list[count+1], list[count+2]) #order should be the same
-            count += 3
+            count += 3 #change this value to a 1 for proof the image displayed was modified
     img.show()
     return list
 
