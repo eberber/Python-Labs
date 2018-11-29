@@ -20,18 +20,20 @@ class Hman(object):
         return self.left, self.right
 
 
-def create_freq_table():
-    img = Image.open("flag.bmp")
+def create_freq_table(file_name):
+    img = Image.open(file_name)
     #img.show()
     width, height = img.size
     px = img.load()
     count_bits = 0
     dict = {}
     total = 0
-    for x in range(width):
-     for y in range(height):
+    w = range(width)
+    h = range(height)
+    for x in w:
+     for y in h:
         #print(px[x,y]) #gives rgb value at each pt
-        r, g, b = px[x, y]# 100, 0 , 200
+        r, g, b = px[x, y]
 
         if r in dict.keys():
             dict[r] += 1
@@ -58,42 +60,42 @@ def create_freq_table():
         temp += dict[i]
         tuple = (dict[i], i)
         list.append(tuple)
-    return list, compare, count_bits
+    return list, compare, count_bits, file_name
 
 
 def create_tree(frequencies):
     p = queue.PriorityQueue()
-    for value in frequencies:    # 1. Create a leaf node for each symbol
-        p.put(value)             # and add it to the priority queue
-    while p.qsize() > 1:         # 2. While there is more than one node
-        l, r = p.get(), p.get()  # 2a. remove two highest nodes
-        node = Hman(l, r)        # 2b. create internal node with children
-        p.put((l[0]+r[0], node)) # 2c. add new node to queue
-        #print('HERE', l,r)
-    return p.get()               # 3. tree is complete - return root node
+    for value in frequencies:    # create node from freq table, add to queue
+        p.put(value)
+    while p.qsize() > 1:
+        l, r = p.get(), p.get()  # remove two highest nodes
+        node = Hman(l, r)        # create internal node OBJECT with children
+        p.put((l[0]+r[0], node)) # add new node object to queue
+    return p.get()               # return root node
 
 
-# Recursively walk the tree down to the leaves,
-#   assigning a code value to each symbol
-def walk_tree(node, prefix="", code={}):
+# Recursively assign bit value to each rgb number
+def encode(node, bits="", code={}):
     if isinstance(node[1].left[1], Hman):
-        walk_tree(node[1].left,prefix+"0", code)
+        encode(node[1].left, bits+"0", code)
     else:
-        code[node[1].left[1]]=prefix+"0"
+        code[node[1].left[1]] = bits+"0"
     if isinstance(node[1].right[1],Hman):
-        walk_tree(node[1].right,prefix+"1", code)
+        encode(node[1].right, bits+"1", code)
     else:
-        code[node[1].right[1]]=prefix+"1"
+        code[node[1].right[1]] = bits+"1"
     return code
 
 
-def compress(code):
-    img = Image.open("flag.bmp")
+def compress(code, file_name):
+    img = Image.open(file_name)
     width, height = img.size
     px = img.load()
     bit_list = []
-    for x in range(width):
-        for y in range(height):
+    w = range(width)
+    h = range(height)
+    for x in w:
+        for y in h:
             r, g, b = px[x, y]
             if r in code.keys():
                 bit_list.append(code[r])
@@ -104,7 +106,7 @@ def compress(code):
     f = open("result.txt", "w+")
     total_compress_bits = 0
     for k in bit_list:
-        f.write("%s" % k)
+        f.write("%s\n" % k)
         total_compress_bits += len(k)
     return total_compress_bits
 
@@ -117,14 +119,21 @@ def compression_ratio(compare, code):
     return avg_bits
 
 
-def decompress(file):
+def decompress(file, code):
     #read in the file and map the bits using the table
+    list = []
     with open(file, "r") as f:
-        contents = f.read()
-        print(contents)
+        for line in f:
+            for i, j in code.items():
+                if line.rstrip() == j:
+                    list.append(i) #we know all bits are unique so on match break
+                    break
+    return list
 
 
-freq, compare, count_bits = create_freq_table()
+file_name = input("Select an image to compress: ")
+start = int(round(time.time() * 1000))
+freq, compare, count_bits, file_name = create_freq_table(file_name)
 
 """freq = [
     (8.167, 'a'), (1.492, 'b'), (2.782, 'c'), (4.253, 'd'),
@@ -136,16 +145,23 @@ freq, compare, count_bits = create_freq_table()
     (1.974, 'y'), (0.074, 'z')]"""
 
 node = create_tree(freq)
-code = walk_tree(node)
-total_compress_bits = compress(code)
+code = encode(node)
+total_compress_bits = compress(code, file_name)
 avg_bits = compression_ratio(compare, code)
+file = "result.txt"
+rgb_point_list = decompress(file, code)
+end = int(round(time.time() * 1000))
+time = end - start
 
-print("RGB          FREQUENCY        BIT MAP")
+
+print("\nRGB          FREQUENCY        BIT MAP")
 print("_____________________________________")
 for i in sorted(freq, reverse=True):
     print(i[1], '   {:6.20f}'.format(i[0]), code[i[1]])
 print("\nRequired bits for fixed length: ", count_bits)
 print("Required bits for Compression: ", total_compress_bits)
-avg_bits = (8-avg_bits)/8 * 100
-avg_bits = 100 - avg_bits
+avg_bits = (8-avg_bits)/8 * 100 #8 bits per component of pixel, gives % compressed
+avg_bits = 100 - avg_bits #take % compressed - original (always 100%)
 print("Compression Ratio: ", round(avg_bits, 2), "%")
+#time = int(time/1000.0)
+print("Time for execution in msecs: ", time)
