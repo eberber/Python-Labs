@@ -2,7 +2,7 @@ from PIL import Image
 import time
 import queue
 
-
+compare_me = []
 class Hman(object):
     def __init__(self, left=None, right=None):
         self.left = left
@@ -34,7 +34,9 @@ def create_freq_table(file_name):
      for y in h:
         #print(px[x,y]) #gives rgb value at each pt
         r, g, b = px[x, y]
-
+        compare_me.append(r)
+        compare_me.append(g)
+        compare_me.append(b)
         if r in dict.keys():
             dict[r] += 1
         else:
@@ -119,7 +121,7 @@ def compression_ratio(compare, code):
     return avg_bits
 
 
-def decompress(file, code):
+def decompress(file, code, file_name):
     #read in the file and map the bits using the table
     list = []
     with open(file, "r") as f:
@@ -128,6 +130,18 @@ def decompress(file, code):
                 if line.rstrip() == j:
                     list.append(i) #we know all bits are unique so on match break
                     break
+    img = Image.open(file_name)
+    width, height = img.size
+    w = range(width)
+    h = range(height)
+    count = 0
+    img.show()
+    px = img.load()
+    for i in w:
+        for j in h: #grab each pixel and replace it with the rgb values from our list
+            px[i,j] = (list[count], list[count+1], list[count+2]) #order should be the same
+            count += 3
+    img.show()
     return list
 
 
@@ -149,7 +163,7 @@ code = encode(node)
 total_compress_bits = compress(code, file_name)
 avg_bits = compression_ratio(compare, code)
 file = "result.txt"
-rgb_point_list = decompress(file, code)
+rgb_point_list = decompress(file, code, file_name)
 end = int(round(time.time() * 1000))
 time = end - start
 
@@ -165,3 +179,4 @@ avg_bits = 100 - avg_bits #take % compressed - original (always 100%)
 print("Compression Ratio: ", round(avg_bits, 2), "%")
 #time = int(time/1000.0)
 print("Time for execution in msecs: ", time)
+print("NOTE: The first image displayed was the original, the second was the image AFTER compression and decompression")
