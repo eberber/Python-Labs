@@ -21,7 +21,7 @@ class Hman(object):
 
 
 def create_freq_table():
-    img = Image.open("colors.bmp")
+    img = Image.open("flag.bmp")
     #img.show()
     width, height = img.size
     px = img.load()
@@ -31,7 +31,7 @@ def create_freq_table():
     for x in range(width):
      for y in range(height):
         #print(px[x,y]) #gives rgb value at each pt
-        r, g, b = px[x, y]
+        r, g, b = px[x, y]# 100, 0 , 200
 
         if r in dict.keys():
             dict[r] += 1
@@ -64,10 +64,10 @@ def create_freq_table():
 def create_tree(frequencies):
     p = queue.PriorityQueue()
     for value in frequencies:    # 1. Create a leaf node for each symbol
-        p.put(value)             #and add it to the priority queue
+        p.put(value)             # and add it to the priority queue
     while p.qsize() > 1:         # 2. While there is more than one node
         l, r = p.get(), p.get()  # 2a. remove two highest nodes
-        node = Hman(l, r) # 2b. create internal node with children
+        node = Hman(l, r)        # 2b. create internal node with children
         p.put((l[0]+r[0], node)) # 2c. add new node to queue
         #print('HERE', l,r)
     return p.get()               # 3. tree is complete - return root node
@@ -88,7 +88,7 @@ def walk_tree(node, prefix="", code={}):
 
 
 def compress(code):
-    img = Image.open("colors.bmp")
+    img = Image.open("flag.bmp")
     width, height = img.size
     px = img.load()
     bit_list = []
@@ -103,7 +103,6 @@ def compress(code):
                 bit_list.append(code[b])
     f = open("result.txt", "w+")
     total_compress_bits = 0
-
     for k in bit_list:
         f.write("%s" % k)
         total_compress_bits += len(k)
@@ -116,6 +115,13 @@ def compression_ratio(compare, code):
         if i in code.keys():
            avg_bits += j * len(code[i])
     return avg_bits
+
+
+def decompress(file):
+    #read in the file and map the bits using the table
+    with open(file, "r") as f:
+        contents = f.read()
+        print(contents)
 
 
 freq, compare, count_bits = create_freq_table()
@@ -136,8 +142,8 @@ avg_bits = compression_ratio(compare, code)
 
 print("RGB          FREQUENCY        BIT MAP")
 print("_____________________________________")
-#for i in sorted(freq, reverse=True):
- #   print(i[1], '   {:6.20f}'.format(i[0]), code[i[1]])
+for i in sorted(freq, reverse=True):
+    print(i[1], '   {:6.20f}'.format(i[0]), code[i[1]])
 print("\nRequired bits for fixed length: ", count_bits)
 print("Required bits for Compression: ", total_compress_bits)
 avg_bits = (8-avg_bits)/8 * 100
