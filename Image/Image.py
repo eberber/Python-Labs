@@ -19,9 +19,8 @@ class Hman(object):
     def children(self):
         return self.left, self.right
 
-
-def create_freq_table(file_name):
-    img = Image.open(file_name)
+def create_freq_table(file_path):
+    img = Image.open(file_path, 'r')
     #img.show()
     width, height = img.size
     px = img.load()
@@ -62,7 +61,7 @@ def create_freq_table(file_name):
         temp += dict[i]
         tuple = (dict[i], i)
         list.append(tuple)
-    return list, compare, count_bits, file_name
+    return list, compare, count_bits, file_path
 
 
 def create_tree(frequencies):
@@ -70,11 +69,10 @@ def create_tree(frequencies):
     for value in frequencies:    # create node from freq table, add to queue
         p.put(value)
     while p.qsize() > 1:
-        l, r = p.get(), p.get()  # remove two highest nodes
+        l, r = p.get(), p.get()  # remove two smallest nodes, priority queue sorts at each get
         node = Hman(l, r)        # create internal node OBJECT with children
-        p.put((l[0]+r[0], node)) # add new node object to queue
+        p.put((l[0]+r[0], node)) # add new node object to queue using the combined frequencies of the l and r
     return p.get()               # return root node
-
 
 # Recursively assign bit value to each rgb number
 def encode(node, bits="", code={}):
@@ -88,9 +86,8 @@ def encode(node, bits="", code={}):
         code[node[1].right[1]] = bits+"1"
     return code
 
-
-def compress(code, file_name):
-    img = Image.open(file_name)
+def compress(code, file_path):
+    img = Image.open(file_path)
     width, height = img.size
     px = img.load()
     bit_list = []
@@ -112,7 +109,6 @@ def compress(code, file_name):
         total_compress_bits += len(k)
     return total_compress_bits
 
-
 def compression_ratio(compare, code):
     avg_bits = 0.0
     for i, j in compare.items():
@@ -120,8 +116,7 @@ def compression_ratio(compare, code):
            avg_bits += j * len(code[i])
     return avg_bits
 
-
-def decompress(file, code, file_name):
+def decompress(file, code, file_path):
     #read in the file and map the bits using the table
     list = []
     with open(file, "r") as f:
@@ -130,7 +125,7 @@ def decompress(file, code, file_name):
                 if line.rstrip() == j:
                     list.append(i) #we know all bits are unique so on match break
                     break
-    img = Image.open(file_name)
+    img = Image.open(file_path)
     width, height = img.size
     w = range(width)
     h = range(height)
@@ -144,29 +139,19 @@ def decompress(file, code, file_name):
     img.show()
     return list
 
-
-file_name = input("Select an image to compress: ")
+#default path
+file_path = "C:/Users/eberber97/Documents/Projects/Python-Labs/Image/colors.bmp" #input("Enter image path: ")
 start = int(round(time.time() * 1000))
-freq, compare, count_bits, file_name = create_freq_table(file_name)
-
-"""freq = [
-    (8.167, 'a'), (1.492, 'b'), (2.782, 'c'), (4.253, 'd'),
-    (12.702, 'e'),(2.228, 'f'), (2.015, 'g'), (6.094, 'h'),
-    (6.966, 'i'), (0.153, 'j'), (0.747, 'k'), (4.025, 'l'),
-    (2.406, 'm'), (6.749, 'n'), (7.507, 'o'), (1.929, 'p'),
-    (0.095, 'q'), (5.987, 'r'), (6.327, 's'), (9.056, 't'),
-    (2.758, 'u'), (1.037, 'v'), (2.365, 'w'), (0.150, 'x'),
-    (1.974, 'y'), (0.074, 'z')]"""
+freq, compare, count_bits, file_path = create_freq_table(file_path)
 
 node = create_tree(freq)
 code = encode(node)
-total_compress_bits = compress(code, file_name)
+total_compress_bits = compress(code, file_path)
 avg_bits = compression_ratio(compare, code)
 file = "result.txt"
-rgb_point_list = decompress(file, code, file_name)
+rgb_point_list = decompress(file, code, file_path)
 end = int(round(time.time() * 1000))
 time = end - start
-
 
 print("\nRGB          FREQUENCY        BIT MAP")
 print("_____________________________________")
