@@ -1,6 +1,7 @@
 from PIL import Image
 import time
 import queue
+from collections import defaultdict
 #AUTHOR: Edgar Berber
 compare_me = []
 class Hman(object):
@@ -25,7 +26,7 @@ def create_freq_table(file_path):
     width, height = img.size
     px = img.load()
     count_bits = 0
-    dict = {}
+    dict = defaultdict(int)
     total = 0
     w = range(width)
     h = range(height)
@@ -36,18 +37,9 @@ def create_freq_table(file_path):
         compare_me.append(r)
         compare_me.append(g)
         compare_me.append(b)
-        if r in dict.keys():
-            dict[r] += 1
-        else:
-            dict[r] = 1
-        if g in dict.keys():
-            dict[g] += 1
-        else:
-            dict[g] = 1
-        if b in dict.keys():
-            dict[b] += 1
-        else:
-            dict[b] = 1
+        dict[r] += 1
+        dict[g] += 1
+        dict[b] += 1
         count_bits += 1
     count_bits = count_bits * 24
     compare = dict
@@ -140,7 +132,7 @@ def decompress(file, code, file_path):
     return list
 
 #default path
-file_path = "C:/Users/eberber97/Documents/Projects/Python-Labs/Image/colors.bmp" #input("Enter image path: ")
+file_path = r"C:\Users\edgar\Python-Labs\Image\colors.bmp" 
 start = int(round(time.time() * 1000))
 freq, compare, count_bits, file_path = create_freq_table(file_path)
 
